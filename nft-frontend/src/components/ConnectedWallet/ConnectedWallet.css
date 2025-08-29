@@ -1,0 +1,11 @@
+.connected-wallet {
+  @apply p-4 bg-gray-800 rounded-lg;
+}
+
+.wallet-address {
+  @apply font-semibold text-lg;
+}
+
+.disconnect-button {
+  @apply mt-2 text-red-400 hover:underline;
+}

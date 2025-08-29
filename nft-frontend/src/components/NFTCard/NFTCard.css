@@ -1,0 +1,31 @@
+.nft-card {
+  @apply bg-gray-800 rounded-xl overflow-hidden shadow-xl cursor-pointer;
+  
+  /* 添加悬停过渡和放大效果 */
+  @apply transition-transform duration-300 ease-in-out;
+  @apply hover:scale-105;
+}
+
+.nft-image {
+  @apply w-full h-48 bg-gray-700 flex items-center justify-center;
+}
+
+.nft-token-id {
+  @apply text-white text-2xl font-bold;
+}
+
+.nft-info {
+  @apply p-4;
+}
+
+.nft-name {
+  @apply text-lg font-bold mb-1 text-white;
+}
+
+.nft-description {
+  @apply text-sm text-gray-400 mb-2;
+}
+
+.nft-token-info {
+  @apply text-xs text-gray-500;
+}

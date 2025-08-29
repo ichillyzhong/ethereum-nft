@@ -1,0 +1,19 @@
+.action-buttons {
+  @apply flex gap-4 justify-center mb-4;
+}
+
+.mint-button {
+  @apply font-bold py-3 px-8 rounded-full text-white;
+}
+
+.mint-button-enabled {
+  @apply bg-green-600 hover:bg-green-700;
+}
+
+.mint-button-disabled {
+  @apply bg-gray-600;
+}
+
+.refresh-button {
+  @apply font-bold py-3 px-6 rounded-full bg-blue-600 hover:bg-blue-700 text-white;
+}

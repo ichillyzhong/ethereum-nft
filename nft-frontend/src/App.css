@@ -1,0 +1,19 @@
+.app-container {
+  @apply min-h-screen bg-gray-900 text-white p-8;
+}
+
+.app-content {
+  @apply max-w-4xl mx-auto text-center;
+}
+
+.app-title {
+  @apply text-4xl font-bold mb-8;
+}
+
+.wallet-section {
+  @apply mb-8;
+}
+
+.status-text {
+  @apply text-sm text-gray-400 mb-4;
+}
