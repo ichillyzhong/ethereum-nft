@@ -21,10 +21,9 @@ ipfs daemon
 go run .
 
 # request to mint nft
-export ACCOUNT0_ADDR="0x..."
 curl -X POST http://localhost:8080/mint \
   -H "Content-Type: application/json" \
-  -d '{"toAddress":"'"$ACCOUNT0_ADDR"'","metadata":"{\"name\":\"Test NFT\",\"description\":\"A test NFT\",\"image\":\"https://via.placeholder.com/300\"}"}'
+  -d '{"toAddress":"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266","metadata":"{\"name\":\"Test NFT\",\"description\":\"A test NFT\",\"image\":\"https://via.placeholder.com/300\"}"}'
 
 # list all nfts
 curl http://localhost:8080/nfts 

@@ -19,6 +19,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -327,6 +328,17 @@ func main() {
 	router.HandleFunc("/nfts", getAllNFTsHandler).Methods("GET")
 	router.HandleFunc("/nfts/{address}", getNftsByAddressHandler).Methods("GET")
 
+	// 配置CORS
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"}, // 允许所有来源，生产环境中应该指定具体域名
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"*"},
+		AllowCredentials: true,
+	})
+
+	// 使用CORS中间件包装路由器
+	handler := c.Handler(router)
+
 	log.Println("Go后端服务启动在 :8080")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(":8080", handler))
 }

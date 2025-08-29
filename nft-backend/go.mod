@@ -6,6 +6,7 @@ require (
 	github.com/ethereum/go-ethereum v1.16.2
 	github.com/gorilla/mux v1.8.0
 	github.com/ipfs/go-ipfs-api v0.7.0
+	github.com/rs/cors v1.7.0
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gorm v1.30.2
 )
