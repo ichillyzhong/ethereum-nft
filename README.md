@@ -1,11 +1,12 @@
 # Ethereum NFT Project
 
-一个完整的以太坊NFT项目，包含智能合约和后端服务。
+一个完整的以太坊NFT项目，包含智能合约、后端服务和前端应用。
 
 ## 项目结构
 
 - **hardhat/** - 包含MyNFT智能合约的开发和部署
 - **nft-backend/** - 包含铸造NFT和查询NFT的Go后端服务接口
+- **nft-frontend/** - 基于React的NFT铸造和管理前端应用
 
 ## 功能特性
 
@@ -13,12 +14,16 @@
 - ✅ NFT铸造功能
 - ✅ IPFS元数据存储
 - ✅ Go后端API服务
+- ✅ React前端应用
+- ✅ MetaMask钱包集成
+- ✅ 响应式UI设计
 - ✅ 本地开发环境支持
 
 ## 技术栈
 
 - **智能合约**: Solidity, Hardhat, OpenZeppelin
 - **后端服务**: Go, go-ethereum, IPFS
+- **前端应用**: React 19, Wagmi, TailwindCSS, MetaMask
 - **区块链**: 以太坊 (本地测试网络)
 
 ## 快速开始
@@ -28,6 +33,7 @@
 - Node.js (v16+)
 - Go (v1.19+)
 - IPFS
+- MetaMask浏览器扩展
 - Git
 
 ### 1. 克隆项目
@@ -49,6 +55,12 @@ npm install
 ```bash
 cd ../nft-backend
 go mod tidy
+```
+
+#### 安装前端依赖
+```bash
+cd ../nft-frontend
+npm install
 ```
 
 ### 3. 启动IPFS节点
@@ -98,9 +110,36 @@ go run .
 
 服务将在 `http://localhost:8080` 启动。
 
-## API接口
+### 8. 启动前端应用
 
-### 铸造NFT
+在新的终端窗口中：
+
+```bash
+cd nft-frontend
+npm start
+```
+
+前端应用将在 `http://localhost:3000` 启动。
+
+## 使用方法
+
+### 方式一：使用前端应用（推荐）
+
+1. 打开浏览器访问 `http://localhost:3000`
+2. 点击「连接 MetaMask」按钮
+3. 在MetaMask中添加Hardhat本地网络：
+   - 网络名称：Hardhat Local
+   - RPC URL：`http://127.0.0.1:8545`
+   - 链ID：31337
+   - 货币符号：ETH
+4. 导入测试账户私钥到MetaMask
+5. 点击「铸造NFT」按钮
+6. 在MetaMask中确认交易
+7. 查看铸造的NFT
+
+### 方式二：使用API接口
+
+#### 铸造NFT
 
 ```bash
 curl -X POST http://localhost:8080/mint \
@@ -118,6 +157,12 @@ curl -X POST http://localhost:8080/mint \
   "txHash": "0x...",
   "tokenURI": "ipfs://QmXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 }
+```
+
+#### 查询NFT
+
+```bash
+curl http://localhost:8080/nfts/0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 ```
 
 ## 测试账户
@@ -158,7 +203,22 @@ ipfs daemon
 - 智能合约基于OpenZeppelin的ERC721标准
 - 元数据存储在IPFS上
 - Go后端使用go-ethereum库与区块链交互
+- React前端使用Wagmi库与MetaMask交互
 - 支持本地开发和测试环境
+- 前端具有零闪烁渲染和优化的状态管理
+
+## 项目架构
+
+```
+用户界面 (React + MetaMask)
+        ↓
+后端API服务 (Go)
+        ↓
+智能合约 (Solidity)
+        ↓
+以太坊区块链 (Hardhat本地网络)
+        ↓
+IPFS存储 (元数据)
 
 ## 许可证
 
