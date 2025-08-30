@@ -5,7 +5,7 @@ import { injected } from 'wagmi/connectors';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// 导入组件和工具
+// Import components and utilities
 import ConnectWalletButton from './components/ConnectWalletButton/ConnectWalletButton';
 import ConnectedWallet from './components/ConnectedWallet/ConnectedWallet';
 import ActionButtons from './components/ActionButtons/ActionButtons';
@@ -14,7 +14,7 @@ import { getOrCreateNFT } from './utils/nftStore';
 import { BACKEND_URL, REFRESH_DELAY } from './config/constants';
 import './App.css';
 
-// 配置
+// Configuration
 const config = createConfig({
   chains: [localhost],
   connectors: [injected({ target: 'metaMask' })],
@@ -36,15 +36,15 @@ function App() {
   
   const injectedConnector = connectors.find(c => c.type === 'injected');
 
-  // 铸造NFT
+  // Mint NFT
   const mintNFT = async () => {
     if (!isConnected || isLoading) return;
     
     try {
       setIsLoading(true);
-      setStatus('正在铸造NFT...');
+      setStatus('Minting NFT...');
       
-      // 使用随机数生成简洁的编号
+      // Use random number to generate concise ID
       const randomId = Math.floor(Math.random() * 1000) + 1;
       const metadata = JSON.stringify({
         name: `NFT #${randomId}`,
@@ -61,22 +61,22 @@ function App() {
 
       if (response.ok) {
         const data = await response.json();
-        setStatus(`铸造成功！交易哈希: ${data.txHash}`);
+        setStatus(`Minting successful! Transaction hash: ${data.txHash}`);
         setTimeout(() => {
           fetchNFTs();
-          setStatus('NFT列表已更新');
+          setStatus('NFT list updated');
         }, REFRESH_DELAY);
       } else {
-        setStatus(`铸造失败: HTTP ${response.status}`);
+        setStatus(`Minting failed: HTTP ${response.status}`);
       }
     } catch (error) {
-      setStatus(`铸造失败: ${error.message}`);
+      setStatus(`Minting failed: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 获取NFT列表 - 超级稳定版本
+  // Fetch NFT list - super stable version
   const fetchNFTs = useCallback(async () => {
     if (!address || fetchingRef.current) return;
     
@@ -99,17 +99,17 @@ function App() {
           return;
         }
         
-        // 使用全局存储获取NFT对象
+        // Use global storage to get NFT objects
         const newNfts = data.map(getOrCreateNFT);
         
-        // 超级严格的比较 - 只有在真正不同时才更新
+        // Super strict comparison - only update when truly different
         if (currentNftsRef.current.length !== newNfts.length) {
           currentNftsRef.current = newNfts;
           setNfts(newNfts);
           return;
         }
         
-        // 检查每个元素的引用
+        // Check reference of each element
         let isDifferent = false;
         for (let i = 0; i < newNfts.length; i++) {
           if (currentNftsRef.current[i] !== newNfts[i]) {
@@ -118,23 +118,23 @@ function App() {
           }
         }
         
-        // 只有在真正不同时才更新
+        // Only update when truly different
         if (isDifferent) {
           currentNftsRef.current = newNfts;
           setNfts(newNfts);
         }
         
       } else {
-        console.error(`加载NFT失败: HTTP ${response.status}`);
+        console.error(`Failed to load NFT: HTTP ${response.status}`);
       }
     } catch (error) {
-      console.error('获取NFT失败:', error);
+      console.error('Failed to fetch NFT:', error);
     } finally {
       fetchingRef.current = false;
     }
   }, [address]);
 
-  // 初始化
+  // Initialize
   useEffect(() => {
     if (address) {
       const timer = setTimeout(fetchNFTs, 100);
@@ -149,7 +149,7 @@ function App() {
   return (
     <div className="app-container">
       <div className="app-content">
-        <h1 className="app-title">NFT 铸造应用</h1>
+        <h1 className="app-title">NFT Minting Application</h1>
         <div className="wallet-section">
           {!isConnected ? (
             <ConnectWalletButton onConnect={connect} connector={injectedConnector} />

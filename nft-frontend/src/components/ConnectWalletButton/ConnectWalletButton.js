@@ -6,7 +6,7 @@ const ConnectWalletButton = ({ onConnect, connector }) => (
     onClick={() => connector && onConnect({ connector })}
     className="connect-wallet-button"
   >
-    连接 MetaMask
+    Connect MetaMask
   </button>
 );
 

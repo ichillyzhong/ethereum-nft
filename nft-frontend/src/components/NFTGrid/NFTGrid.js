@@ -15,7 +15,7 @@ const NFTGrid = ({ nfts }) => (
         ))}
       </div>
     ) : (
-      <p className="no-nfts-message">你还没有铸造任何NFT。</p>
+      <p className="no-nfts-message">You haven't minted any NFTs yet.</p>
     )}
   </div>
 );

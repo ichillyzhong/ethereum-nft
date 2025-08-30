@@ -1,7 +1,7 @@
-// 全局NFT存储 - 在组件外部，确保完全稳定
+// Global NFT storage - outside components, ensuring complete stability
 const globalNFTStore = new Map();
 
-// 获取或创建NFT对象 - 全局函数，确保引用稳定
+// Get or create NFT object - global function, ensuring reference stability
 export const getOrCreateNFT = (nft) => {
     const key = `${nft.TokenID}-${nft.Owner}`;
 

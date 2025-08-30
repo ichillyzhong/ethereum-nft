@@ -27,36 +27,36 @@ import (
 	shell "github.com/ipfs/go-ipfs-api"
 )
 
-// 定义API请求的JSON结构体
+// Define JSON struct for API requests
 type MintRequest struct {
 	ToAddress string `json:"toAddress"`
 	Metadata  string `json:"metadata"`
 }
 
-// 定义NFT元数据结构体
+// Define NFT metadata struct
 type NFTMetadata struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Image       string `json:"image"`
 }
 
-// Transfer事件的结构体，用于解析事件日志
+// Transfer event struct for parsing event logs
 type TransferEvent struct {
 	From    common.Address
 	To      common.Address
 	TokenId *big.Int
 }
 
-// NFT gorm模型
+// NFT gorm model
 type NFT struct {
 	gorm.Model
-	TokenID         string `gorm:"uniqueIndex"` // NFT的唯一ID
-	Owner           string // NFT所有者的地址
-	TokenURI        string // 元数据链接
-	TransactionHash string // 铸造该NFT的交易哈希
+	TokenID         string `gorm:"uniqueIndex"` // Unique ID of the NFT
+	Owner           string // Address of the NFT owner
+	TokenURI        string // Metadata link
+	TransactionHash string // Transaction hash that minted this NFT
 }
 
-// 全局变量，用于方便在各个函数中访问
+// Global variables for convenient access across functions
 var (
 	client               *ethclient.Client
 	ipfsShell            *shell.Shell
@@ -67,16 +67,16 @@ var (
 	transferEventSigHash common.Hash
 )
 
-// 环境变量
+// Environment variables
 var (
 	nft_contract_addr = os.Getenv("NFT_CONTRACT_ADDR")
-	evm_private_key   = os.Getenv("EVM_PRIVATE_KEY") // 没有0x
+	evm_private_key   = os.Getenv("EVM_PRIVATE_KEY") // without 0x prefix
 )
 
-// mintHandler 处理铸造NFT的HTTP请求
+// mintHandler handles HTTP requests for minting NFTs
 func mintHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
-		http.Error(w, "只支持 POST 请求", http.StatusMethodNotAllowed)
+		http.Error(w, "Only POST requests are supported", http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -87,34 +87,34 @@ func mintHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 1. 上传元数据到 IPFS
-	// 这里直接使用请求中的metadata字段作为内容
+	// 1. Upload metadata to IPFS
+	// Use the metadata field from the request directly as content
 	cid, err := ipfsShell.Add(strings.NewReader(req.Metadata))
 	if err != nil {
-		log.Printf("无法上传到IPFS: %v", err)
-		http.Error(w, "无法上传元数据到IPFS", http.StatusInternalServerError)
+		log.Printf("Unable to upload to IPFS: %v", err)
+		http.Error(w, "Unable to upload metadata to IPFS", http.StatusInternalServerError)
 		return
 	}
 	tokenURI := "ipfs://" + cid
 
-	// 2. 准备交易信息
+	// 2. Prepare transaction information
 	publicKey := privateKey.Public()
 	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
 	if !ok {
-		log.Printf("无法转换公钥")
-		http.Error(w, "无法转换公钥", http.StatusInternalServerError)
+		log.Printf("Unable to convert public key")
+		http.Error(w, "Unable to convert public key", http.StatusInternalServerError)
 		return
 	}
 	nonce, err := client.PendingNonceAt(context.Background(), crypto.PubkeyToAddress(*publicKeyECDSA))
 	if err != nil {
-		log.Printf("无法获取Nonce: %v", err)
-		http.Error(w, "无法获取Nonce", http.StatusInternalServerError)
+		log.Printf("Unable to get Nonce: %v", err)
+		http.Error(w, "Unable to get Nonce", http.StatusInternalServerError)
 		return
 	}
 	gasPrice, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
-		log.Printf("无法获取Gas Price: %v", err)
-		http.Error(w, "无法获取Gas Price", http.StatusInternalServerError)
+		log.Printf("Unable to get Gas Price: %v", err)
+		http.Error(w, "Unable to get Gas Price", http.StatusInternalServerError)
 		return
 	}
 
@@ -124,28 +124,28 @@ func mintHandler(w http.ResponseWriter, r *http.Request) {
 	auth.GasLimit = uint64(300000)
 	auth.GasPrice = gasPrice
 
-	// 3. 调用合约的 mintNFT 函数
+	// 3. Call the contract's mintNFT function
 	toAddress := common.HexToAddress(req.ToAddress)
 	tx, err := contractInstance.MintNFT(auth, toAddress, tokenURI)
 	if err != nil {
-		log.Printf("无法发起铸造交易: %v", err)
-		http.Error(w, fmt.Sprintf("无法发起铸造交易: %v", err), http.StatusInternalServerError)
+		log.Printf("Unable to initiate minting transaction: %v", err)
+		http.Error(w, fmt.Sprintf("Unable to initiate minting transaction: %v", err), http.StatusInternalServerError)
 		return
 	}
 
-	// 4. 等待交易被打包
+	// 4. Wait for transaction to be mined
 	_, err = bind.WaitMined(context.Background(), client, tx)
 	if err != nil {
-		log.Printf("交易未被打包: %v", err)
-		http.Error(w, "交易未被打包", http.StatusInternalServerError)
+		log.Printf("Transaction not mined: %v", err)
+		http.Error(w, "Transaction not mined", http.StatusInternalServerError)
 		return
 	}
 
-	log.Printf("铸造交易已成功打包, 哈希: %s", tx.Hash().Hex())
+	log.Printf("Minting transaction successfully mined, hash: %s", tx.Hash().Hex())
 
 	w.WriteHeader(http.StatusOK)
 	response := map[string]string{
-		"message":  "铸造交易已发送",
+		"message":  "Minting transaction sent",
 		"txHash":   tx.Hash().Hex(),
 		"tokenURI": tokenURI,
 	}
@@ -155,61 +155,61 @@ func mintHandler(w http.ResponseWriter, r *http.Request) {
 func initServices() {
 	var err error
 
-	// 连接到以太坊节点
+	// Connect to Ethereum node
 	client, err = ethclient.Dial("ws://127.0.0.1:8545")
 	if err != nil {
-		log.Fatalf("无法连接到以太坊节点: %v", err)
+		log.Fatalf("Unable to connect to Ethereum node: %v", err)
 	}
-	log.Println("成功连接到以太坊节点!")
+	log.Println("Successfully connected to Ethereum node!")
 
-	// 连接到本地IPFS节点
+	// Connect to local IPFS node
 	ipfsShell = shell.NewShell("localhost:5001")
-	log.Println("成功连接到IPFS节点!")
+	log.Println("Successfully connected to IPFS node!")
 
-	// 连接到SQLite数据库
+	// Connect to SQLite database
 	db, err = gorm.Open(sqlite.Open("nfts.db"), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("无法连接到数据库: %v", err)
+		log.Fatalf("Unable to connect to database: %v", err)
 	}
-	log.Println("成功连接到数据库!")
+	log.Println("Successfully connected to database!")
 
-	// 自动迁移（创建或更新表结构）
+	// Auto migrate (create or update table structure)
 	db.AutoMigrate(&NFT{})
-	log.Println("数据库表已自动迁移！")
+	log.Println("Database tables auto-migrated!")
 
-	// 解析合约ABI
+	// Parse contract ABI
 	parsedABI, err := abi.JSON(strings.NewReader(MainMetaData.ABI))
 	if err != nil {
-		log.Fatalf("无法解析ABI: %v", err)
+		log.Fatalf("Unable to parse ABI: %v", err)
 	}
 
-	// 获取Transfer事件的签名哈希
+	// Get Transfer event signature hash
 	transferEventSigHash = parsedABI.Events["Transfer"].ID
-	log.Println("成功解析Transfer事件签名哈希！")
+	log.Println("Successfully parsed Transfer event signature hash!")
 
-	// 警告：这里的私钥只是为了演示，请勿在生产环境中使用！
-	// Hardhat 测试账户 #0 的私钥（不带0x）
+	// Warning: This private key is for demonstration only, do not use in production!
+	// Hardhat test account #0 private key (without 0x prefix)
 	privateKey, err = crypto.HexToECDSA(evm_private_key)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// 确保这个合约地址是你的部署地址
+	// Ensure this contract address is your deployed address
 	contractAddr = common.HexToAddress(nft_contract_addr)
 	contractInstance, err = NewMain(contractAddr, client)
 	if err != nil {
-		log.Fatalf("无法创建合约实例: %v", err)
+		log.Fatalf("Unable to create contract instance: %v", err)
 	}
 }
 
 func startEventSync(client *ethclient.Client, contractAddr common.Address) {
-	// 设置过滤条件
+	// Set filter conditions
 	query := ethereum.FilterQuery{
 		Addresses: []common.Address{contractAddr},
 		Topics:    [][]common.Hash{{transferEventSigHash}},
 	}
 
-	// 建立一个实时订阅
+	// Establish real-time subscription
 	logs := make(chan types.Log)
 	sub, err := client.SubscribeFilterLogs(context.Background(), query, logs)
 	if err != nil {
@@ -217,16 +217,16 @@ func startEventSync(client *ethclient.Client, contractAddr common.Address) {
 	}
 	defer sub.Unsubscribe()
 
-	log.Println("开始监听 Transfer 事件...")
+	log.Println("Started listening for Transfer events...")
 
 	for {
 		select {
 		case err := <-sub.Err():
-			log.Println("订阅错误:", err)
+			log.Println("Subscription error:", err)
 		case vLog := <-logs:
-			// 遍历并处理所有新日志
+			// Iterate and process all new logs
 			if len(vLog.Topics) != 4 {
-				log.Printf("事件日志topics数量不正确，跳过，哈希: %s", vLog.TxHash.Hex())
+				log.Printf("Event log topics count incorrect, skipping, hash: %s", vLog.TxHash.Hex())
 				continue
 			}
 
@@ -240,15 +240,15 @@ func startEventSync(client *ethclient.Client, contractAddr common.Address) {
 	}
 }
 
-// handleTransferEvent 处理并保存 Transfer 事件到数据库
+// handleTransferEvent processes and saves Transfer events to database
 func handleTransferEvent(event TransferEvent, txHash string) {
 	if event.From == common.HexToAddress("0x0000000000000000000000000000000000000000") {
-		log.Printf("发现铸造事件！TokenID: %s, 接收者: %s", event.TokenId.String(), event.To.Hex())
+		log.Printf("Mint event found! TokenID: %s, Recipient: %s", event.TokenId.String(), event.To.Hex())
 
-		// 修正: 调用正确的 TokenURI 方法
+		// Fix: Call the correct TokenURI method
 		tokenURI, err := contractInstance.TokenURI(&bind.CallOpts{}, event.TokenId)
 		if err != nil {
-			log.Printf("无法获取TokenURI: %v", err)
+			log.Printf("Unable to get TokenURI: %v", err)
 			return
 		}
 
@@ -261,29 +261,29 @@ func handleTransferEvent(event TransferEvent, txHash string) {
 
 		result := db.Create(&newNFT)
 		if result.Error != nil {
-			log.Printf("保存新NFT到数据库失败: %v", result.Error)
+			log.Printf("Failed to save new NFT to database: %v", result.Error)
 		} else {
-			log.Printf("新NFT已成功保存到数据库，TokenID: %s", newNFT.TokenID)
+			log.Printf("New NFT successfully saved to database, TokenID: %s", newNFT.TokenID)
 		}
 	} else {
-		log.Printf("发现转移事件！TokenID: %s, 从 %s 到 %s", event.TokenId.String(), event.From.Hex(), event.To.Hex())
+		log.Printf("Transfer event found! TokenID: %s, from %s to %s", event.TokenId.String(), event.From.Hex(), event.To.Hex())
 
 		var nft NFT
 		result := db.Where("token_id = ?", event.TokenId.String()).First(&nft)
 
 		if result.Error == gorm.ErrRecordNotFound {
-			log.Printf("数据库中未找到NFT记录，TokenID: %s，可能为历史事件", event.TokenId.String())
+			log.Printf("NFT record not found in database, TokenID: %s, possibly historical event", event.TokenId.String())
 		} else if result.Error != nil {
-			log.Printf("查询数据库错误: %v", result.Error)
+			log.Printf("Database query error: %v", result.Error)
 		} else {
 			db.Model(&nft).Update("owner", event.To.Hex())
-			log.Printf("NFT所有者已更新！TokenID: %s, 新拥有者: %s", nft.TokenID, event.To.Hex())
+			log.Printf("NFT owner updated! TokenID: %s, New owner: %s", nft.TokenID, event.To.Hex())
 		}
 	}
 }
 
 func getAllNFTsHandler(w http.ResponseWriter, r *http.Request) {
-	// 获取所有NFTs
+	// Get all NFTs
 	var nfts []NFT
 	result := db.Find(&nfts)
 	if result.Error != nil {
@@ -292,13 +292,13 @@ func getAllNFTsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 将结果以JSON格式返回
+	// Return results in JSON format
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(nfts)
 }
 
 func getNftsByAddressHandler(w http.ResponseWriter, r *http.Request) {
-	// 从 URL 参数中获取地址
+	// Get address from URL parameters
 	vars := mux.Vars(r)
 	address := strings.ToLower(vars["address"])
 
@@ -317,28 +317,28 @@ func getNftsByAddressHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	initServices()
 
-	// 启动一个goroutine来监听链上事件
+	// Start a goroutine to listen for on-chain events
 	go startEventSync(client, contractAddr)
 
-	// 创建一个新的路由器
+	// Create a new router
 	router := mux.NewRouter()
 
-	// 注册路由
+	// Register routes
 	router.HandleFunc("/mint", mintHandler).Methods("POST")
 	router.HandleFunc("/nfts", getAllNFTsHandler).Methods("GET")
 	router.HandleFunc("/nfts/{address}", getNftsByAddressHandler).Methods("GET")
 
-	// 配置CORS
+	// Configure CORS
 	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"*"}, // 允许所有来源，生产环境中应该指定具体域名
+		AllowedOrigins: []string{"*"}, // Allow all origins, should specify specific domains in production
 		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders: []string{"*"},
 		AllowCredentials: true,
 	})
 
-	// 使用CORS中间件包装路由器
+	// Wrap router with CORS middleware
 	handler := c.Handler(router)
 
-	log.Println("Go后端服务启动在 :8080")
+	log.Println("Go backend service started on :8080")
 	log.Fatal(http.ListenAndServe(":8080", handler))
 }

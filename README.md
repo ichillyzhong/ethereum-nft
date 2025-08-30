@@ -1,145 +1,145 @@
 # Ethereum NFT Project
 
-一个完整的以太坊NFT项目，包含智能合约、后端服务和前端应用。
+A complete Ethereum NFT project including smart contracts, backend services, and frontend application.
 
-## 项目结构
+## Project Structure
 
-- **hardhat/** - 包含MyNFT智能合约的开发和部署
-- **nft-backend/** - 包含铸造NFT和查询NFT的Go后端服务接口
-- **nft-frontend/** - 基于React的NFT铸造和管理前端应用
+- **hardhat/** - Contains MyNFT smart contract development and deployment
+- **nft-backend/** - Contains Go backend service interfaces for minting and querying NFTs
+- **nft-frontend/** - React-based NFT minting and management frontend application
 
-## 功能特性
+## Features
 
-- ✅ ERC721 NFT智能合约
-- ✅ NFT铸造功能
-- ✅ IPFS元数据存储
-- ✅ Go后端API服务
-- ✅ React前端应用
-- ✅ MetaMask钱包集成
-- ✅ 响应式UI设计
-- ✅ 本地开发环境支持
+- ✅ ERC721 NFT Smart Contract
+- ✅ NFT Minting Functionality
+- ✅ IPFS Metadata Storage
+- ✅ Go Backend API Service
+- ✅ React Frontend Application
+- ✅ MetaMask Wallet Integration
+- ✅ Responsive UI Design
+- ✅ Local Development Environment Support
 
-## 技术栈
+## Technology Stack
 
-- **智能合约**: Solidity, Hardhat, OpenZeppelin
-- **后端服务**: Go, go-ethereum, IPFS
-- **前端应用**: React 19, Wagmi, TailwindCSS, MetaMask
-- **区块链**: 以太坊 (本地测试网络)
+- **Smart Contracts**: Solidity, Hardhat, OpenZeppelin
+- **Backend Service**: Go, go-ethereum, IPFS
+- **Frontend Application**: React 19, Wagmi, TailwindCSS, MetaMask
+- **Blockchain**: Ethereum (Local Test Network)
 
-## 快速开始
+## Quick Start
 
-### 前置要求
+### Prerequisites
 
 - Node.js (v16+)
 - Go (v1.19+)
 - IPFS
-- MetaMask浏览器扩展
+- MetaMask Browser Extension
 - Git
 
-### 1. 克隆项目
+### 1. Clone Project
 
 ```bash
 git clone <repository-url>
 cd ethereum-nft
 ```
 
-### 2. 安装依赖
+### 2. Install Dependencies
 
-#### 安装Hardhat依赖
+#### Install Hardhat Dependencies
 ```bash
 cd hardhat
 npm install
 ```
 
-#### 安装Go依赖
+#### Install Go Dependencies
 ```bash
 cd ../nft-backend
 go mod tidy
 ```
 
-#### 安装前端依赖
+#### Install Frontend Dependencies
 ```bash
 cd ../nft-frontend
 npm install
 ```
 
-### 3. 启动IPFS节点
+### 3. Start IPFS Node
 
 ```bash
-# 如果是第一次使用IPFS
+# If using IPFS for the first time
 ipfs init
 
-# 启动IPFS守护进程
+# Start IPFS daemon
 ipfs daemon
 ```
 
-### 4. 启动Hardhat本地网络
+### 4. Start Hardhat Local Network
 
 ```bash
 cd hardhat
 npx hardhat node
 ```
 
-这将启动一个本地以太坊测试网络，并显示测试账户和私钥。
+This will start a local Ethereum test network and display test accounts and private keys.
 
-### 5. 部署智能合约
+### 5. Deploy Smart Contract
 
-在新的终端窗口中：
+In a new terminal window:
 
 ```bash
 cd hardhat
 npx hardhat run scripts/deploy.js --network localhost
 ```
 
-记录下部署的合约地址，需要在Go后端中使用。
+Record the deployed contract address, which will be needed in the Go backend.
 
-### 6. 更新合约地址
+### 6. Update Contract Address
 
-在 `nft-backend/main.go` 中更新合约地址：
+Update the contract address in `nft-backend/main.go`:
 
 ```go
 contractAddr = common.HexToAddress("YOUR_DEPLOYED_CONTRACT_ADDRESS")
 ```
 
-### 7. 启动Go后端服务
+### 7. Start Go Backend Service
 
 ```bash
 cd nft-backend
 go run .
 ```
 
-服务将在 `http://localhost:8080` 启动。
+The service will start at `http://localhost:8080`.
 
-### 8. 启动前端应用
+### 8. Start Frontend Application
 
-在新的终端窗口中：
+In a new terminal window:
 
 ```bash
 cd nft-frontend
 npm start
 ```
 
-前端应用将在 `http://localhost:3000` 启动。
+The frontend application will start at `http://localhost:3000`.
 
-## 使用方法
+## Usage
 
-### 方式一：使用前端应用（推荐）
+### Method 1: Using Frontend Application (Recommended)
 
-1. 打开浏览器访问 `http://localhost:3000`
-2. 点击「连接 MetaMask」按钮
-3. 在MetaMask中添加Hardhat本地网络：
-   - 网络名称：Hardhat Local
-   - RPC URL：`http://127.0.0.1:8545`
-   - 链ID：31337
-   - 货币符号：ETH
-4. 导入测试账户私钥到MetaMask
-5. 点击「铸造NFT」按钮
-6. 在MetaMask中确认交易
-7. 查看铸造的NFT
+1. Open browser and visit `http://localhost:3000`
+2. Click "Connect MetaMask" button
+3. Add Hardhat local network in MetaMask:
+   - Network Name: Hardhat Local
+   - RPC URL: `http://127.0.0.1:8545`
+   - Chain ID: 31337
+   - Currency Symbol: ETH
+4. Import test account private key to MetaMask
+5. Click "Mint NFT" button
+6. Confirm transaction in MetaMask
+7. View the minted NFT
 
-### 方式二：使用API接口
+### Method 2: Using API Interface
 
-#### 铸造NFT
+#### Mint NFT
 
 ```bash
 curl -X POST http://localhost:8080/mint \
@@ -150,77 +150,78 @@ curl -X POST http://localhost:8080/mint \
   }'
 ```
 
-**响应示例:**
+**Response Example:**
 ```json
 {
-  "message": "铸造交易已发送",
+  "message": "Minting transaction sent",
   "txHash": "0x...",
   "tokenURI": "ipfs://QmXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 }
 ```
 
-#### 查询NFT
+#### Query NFT
 
 ```bash
 curl http://localhost:8080/nfts/0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 ```
 
-## 测试账户
+## Test Accounts
 
-Hardhat默认提供的测试账户：
+Default test accounts provided by Hardhat:
 
-- 账户#0: `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`
-- 账户#1: `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`
-- 账户#2: `0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC`
+- Account #0: `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`
+- Account #1: `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`
+- Account #2: `0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC`
 
-每个账户都有10000 ETH的测试余额。
+Each account has a test balance of 10000 ETH.
 
-## 故障排除
+## Troubleshooting
 
-### 1. "Sender doesn't have enough funds" 错误
+### 1. "Sender doesn't have enough funds" Error
 
-确保：
-- Hardhat节点正在运行
-- 使用正确的私钥（对应有余额的测试账户）
-- 合约地址正确
+Ensure:
+- Hardhat node is running
+- Using correct private key (corresponding to test account with balance)
+- Contract address is correct
 
-### 2. IPFS连接错误
+### 2. IPFS Connection Error
 
-确保IPFS守护进程正在运行：
+Ensure IPFS daemon is running:
 ```bash
 ipfs daemon
 ```
 
-### 3. 合约调用失败
+### 3. Contract Call Failure
 
-确保：
-- 合约已正确部署
-- 合约地址在Go代码中正确配置
-- 网络连接正常
+Ensure:
+- Contract is properly deployed
+- Contract address is correctly configured in Go code
+- Network connection is normal
 
-## 开发说明
+## Development Notes
 
-- 智能合约基于OpenZeppelin的ERC721标准
-- 元数据存储在IPFS上
-- Go后端使用go-ethereum库与区块链交互
-- React前端使用Wagmi库与MetaMask交互
-- 支持本地开发和测试环境
-- 前端具有零闪烁渲染和优化的状态管理
+- Smart contract based on OpenZeppelin's ERC721 standard
+- Metadata stored on IPFS
+- Go backend uses go-ethereum library to interact with blockchain
+- React frontend uses Wagmi library to interact with MetaMask
+- Supports local development and testing environment
+- Frontend features zero-flicker rendering and optimized state management
 
-## 项目架构
+## Project Architecture
 
 ```
-用户界面 (React + MetaMask)
+User Interface (React + MetaMask)
         ↓
-后端API服务 (Go)
+Backend API Service (Go)
         ↓
-智能合约 (Solidity)
+Smart Contract (Solidity)
         ↓
-以太坊区块链 (Hardhat本地网络)
+Ethereum Blockchain (Hardhat Local Network)
         ↓
-IPFS存储 (元数据)
+IPFS Storage (Metadata)
+```
 
-## 许可证
+## License
 
 MIT License
 

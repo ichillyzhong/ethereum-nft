@@ -8,27 +8,27 @@ describe("MyNFT", function () {
   let addr2;
 
   beforeEach(async function () {
-    // 获取测试账户
+    // Get test accounts
     [owner, addr1, addr2] = await ethers.getSigners();
 
-    // 部署合约
+    // Deploy contract
     const MyNFT = await ethers.getContractFactory("MyNFT");
     myNFT = await MyNFT.deploy(owner.address);
   });
 
-  describe("部署", function () {
-    it("应该设置正确的名称和符号", async function () {
+  describe("Deployment", function () {
+    it("should set correct name and symbol", async function () {
       expect(await myNFT.name()).to.equal("MyNFT");
       expect(await myNFT.symbol()).to.equal("MNFT");
     });
 
-    it("应该设置正确的所有者", async function () {
+    it("should set correct owner", async function () {
       expect(await myNFT.owner()).to.equal(owner.address);
     });
   });
 
-  describe("铸造NFT", function () {
-    it("所有者应该能够铸造NFT", async function () {
+  describe("Minting NFT", function () {
+    it("owner should be able to mint NFT", async function () {
       const tokenURI = "https://example.com/token/1";
       
       await expect(myNFT.mintNFT(addr1.address, tokenURI))
@@ -40,7 +40,7 @@ describe("MyNFT", function () {
       expect(await myNFT.balanceOf(addr1.address)).to.equal(1);
     });
 
-    it("非所有者不应该能够铸造NFT", async function () {
+    it("non-owner should not be able to mint NFT", async function () {
       const tokenURI = "https://example.com/token/1";
       
       await expect(
@@ -48,7 +48,7 @@ describe("MyNFT", function () {
       ).to.be.revertedWithCustomError(myNFT, "OwnableUnauthorizedAccount");
     });
 
-    it("应该能够铸造多个NFT", async function () {
+    it("should be able to mint multiple NFTs", async function () {
       const tokenURI1 = "https://example.com/token/1";
       const tokenURI2 = "https://example.com/token/2";
 
@@ -61,7 +61,7 @@ describe("MyNFT", function () {
       expect(await myNFT.tokenURI(2)).to.equal(tokenURI2);
     });
 
-    it("tokenId应该递增", async function () {
+    it("tokenId should increment", async function () {
       await myNFT.mintNFT(addr1.address, "uri1");
       await myNFT.mintNFT(addr1.address, "uri2");
       await myNFT.mintNFT(addr1.address, "uri3");
@@ -73,17 +73,17 @@ describe("MyNFT", function () {
     });
   });
 
-  describe("ERC721功能", function () {
+  describe("ERC721 functionality", function () {
     beforeEach(async function () {
       await myNFT.mintNFT(addr1.address, "https://example.com/token/1");
     });
 
-    it("应该支持ERC721接口", async function () {
-      // ERC721接口ID: 0x80ac58cd
+    it("should support ERC721 interface", async function () {
+      // ERC721 interface ID: 0x80ac58cd
       expect(await myNFT.supportsInterface("0x80ac58cd")).to.be.true;
     });
 
-    it("NFT持有者应该能够转移NFT", async function () {
+    it("NFT holder should be able to transfer NFT", async function () {
       await expect(
         myNFT.connect(addr1).transferFrom(addr1.address, addr2.address, 1)
       ).to.emit(myNFT, "Transfer")
@@ -94,7 +94,7 @@ describe("MyNFT", function () {
       expect(await myNFT.balanceOf(addr2.address)).to.equal(1);
     });
 
-    it("应该能够批准和转移NFT", async function () {
+    it("should be able to approve and transfer NFT", async function () {
       await myNFT.connect(addr1).approve(addr2.address, 1);
       expect(await myNFT.getApproved(1)).to.equal(addr2.address);
 
@@ -103,13 +103,13 @@ describe("MyNFT", function () {
     });
   });
 
-  describe("错误处理", function () {
-    it("查询不存在的token应该失败", async function () {
+  describe("Error handling", function () {
+    it("querying non-existent token should fail", async function () {
       await expect(myNFT.ownerOf(999))
         .to.be.revertedWithCustomError(myNFT, "ERC721NonexistentToken");
     });
 
-    it("查询不存在的tokenURI应该失败", async function () {
+    it("querying non-existent tokenURI should fail", async function () {
       await expect(myNFT.tokenURI(999))
         .to.be.revertedWithCustomError(myNFT, "ERC721NonexistentToken");
     });

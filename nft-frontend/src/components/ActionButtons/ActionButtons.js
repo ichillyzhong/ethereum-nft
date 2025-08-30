@@ -10,13 +10,13 @@ const ActionButtons = ({ onMint, onRefresh, isLoading }) => (
         isLoading ? 'mint-button-disabled' : 'mint-button-enabled'
       }`}
     >
-      {isLoading ? '处理中...' : '铸造NFT'}
+      {isLoading ? 'Processing...' : 'Mint NFT'}
     </button>
     <button 
       onClick={onRefresh}
       className="refresh-button"
     >
-      刷新NFT
+      Refresh NFT
     </button>
   </div>
 );
